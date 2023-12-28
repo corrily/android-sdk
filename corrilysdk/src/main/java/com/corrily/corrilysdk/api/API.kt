@@ -17,16 +17,13 @@ class API(val factory: DependencyProtocol) {
     println("request ${request.responseCode}")
     when (request.responseCode) {
       in 200..299 -> {
-        println("request 200")
         return JSON.decodeFromString<Response>(request.readResponseAndDisconnect())
       }
       in 300..499 -> {
         val decoded = JSON.decodeFromString<ErrorResponse>(request.readResponseAndDisconnect())
-        println("request error ${decoded.errorMessage}")
         throw HttpError.ClientError(decoded.errorMessage)
       }
       else -> {
-        println("request unknown")
         throw HttpError.Unknown()
       }
     }
@@ -34,10 +31,8 @@ class API(val factory: DependencyProtocol) {
 
   suspend fun getPaywall(dto: PaywallDto): PaywallResponse {
     return try {
-      println("request paywall")
       request(Endpoint.paywall(dto))
     } catch (error: Throwable) {
-      println("request paywall error")
       throw error
     }
   }

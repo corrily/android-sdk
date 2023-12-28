@@ -24,10 +24,8 @@ class Endpoint<Response>(
     Post("POST")
   }
   suspend fun createURLRequest(factory: DependencyProtocol): HttpURLConnection? = coroutineScope {
-    println("inside create request")
     val queries = queryItems?.joinToString("&") { "${it.name}=${it.value}"} ?: ""
     val url = URL("${factory.config.channel.baseUrl}${path}?${queries}")
-    println("request url ${factory.config.channel.baseUrl}${path}?${queries}")
     val connection = url.openConnection() as HttpURLConnection
 
     val headers: Map<String, String> = mapOf(
@@ -56,8 +54,6 @@ class Endpoint<Response>(
     fun paywall(dto: PaywallDto): Endpoint<PaywallResponse> {
 
       val body = JSON.encodeToString<PaywallDto>(dto)
-
-      println("request body $body")
 
       return Endpoint(
         path = "/v1/paywall",

@@ -13,8 +13,8 @@ data class PaywallProduct(
   val priceUsd: String,
   val cents: Boolean,
   val features: List<PaywallProductFeature>,
-  val overrides: PaywallProductOverride,
-  val trail: PaywallProductTrial
+  val overrides: PaywallProductOverride?,
+  val trial: PaywallProductTrial?
 )
 
 @Serializable
@@ -31,9 +31,9 @@ data class PaywallProductOverride(
 
 @Serializable
 data class PaywallProductTrial(
-  val trailId: Int,
-  val trailDays: Int,
-  val trailType: String
+  val trialId: Int,
+  val trialDays: Int,
+  val trialType: String
 )
 
 @Serializable
@@ -63,7 +63,7 @@ data class PricingPage(
   val type: String,
   val channel: String,
   val showFeatureComparisonTable: Boolean,
-  val featureComparisonTableText: Boolean,
+  val featureComparisonTableText: String,
   val isDefault: Boolean = false,
   val headerImage: String? = null,
   val footerDescription: String? = null
