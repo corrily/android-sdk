@@ -1,24 +1,31 @@
 package com.corrily.corrilysdk
 
+import android.content.Context
 import android.util.Log
+import com.corrily.corrilysdk.dependencymanager.DependencyManager
+import com.corrily.corrilysdk.models.PaywallDto
+import com.corrily.corrilysdk.models.PaywallResponse
 
-public object CorrilySDK {
-  private var isAlreadyStarted = false
-  fun start(apiKey: String) {
-    if (isAlreadyStarted) {
-      Log.d("CorrilySDK", "Corrily.start called multiple times. Please make sure you only call this once on app launch.")
+object CorrilySDK {
+  private var initialized = false
+
+  lateinit var dependencies: DependencyManager
+
+  fun start(context: Context, apiKey: String) {
+    if (initialized) {
+      Log.d(
+        "CorrilySDK",
+        "Corrily.start called multiple times. Please make sure you only call this once on app launch."
+      )
       return
     }
-    println("Start CorrilySDK with $apiKey")
+    dependencies = DependencyManager(context)
+    dependencies.config.setApiKey(apiKey)
+    initialized = true
   }
 
-
-
-  fun requestPaywall(paywallId: String?) {}
-  fun renderPaywall(paywallId: String?) {}
-  fun identifyUser(userId: String?, country: String?) {}
-
-  fun setUser(userId: String?, country: String?) {}
-  fun setFallbackPaywall(jsonString: String) {}
-
+  suspend fun test(): PaywallResponse {
+    val dto = PaywallDto(country = "US", ip = null, userId = null, paywallId = null)
+    return dependencies.api.getPaywall(dto)
+  }
 }
