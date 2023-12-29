@@ -8,5 +8,5 @@ class DependencyManager(context: Context): DependencyProtocol {
   override var config: ConfigManager = ConfigManager()
   override var api: API = API(factory = this)
   override var storage: StorageManager = StorageManager(context = context)
-  override var user: UserManager = UserManager(factory = this)
+  override var user: UserManager = UserManager(context = context, factory = this)
 }
