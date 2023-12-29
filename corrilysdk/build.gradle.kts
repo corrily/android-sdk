@@ -21,6 +21,14 @@ android {
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
+
+  buildFeatures {
+    compose = true
+  }
+  composeOptions {
+    kotlinCompilerExtensionVersion = "1.5.1"
+  }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -41,4 +49,11 @@ dependencies {
 
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
   implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+  implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+  implementation("androidx.compose.ui:ui")
+  implementation("androidx.compose.ui:ui-tooling-preview")
+  implementation("androidx.compose.material3:material3")
+  debugImplementation("androidx.compose.ui:ui-tooling")
+  androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }

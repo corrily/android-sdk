@@ -2,7 +2,9 @@ package com.corrily.corrilysdk
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.Composable
 import com.corrily.corrilysdk.dependencymanager.DependencyManager
+import com.corrily.corrilysdk.views.PaywallView
 
 object CorrilySDK {
   private var initialized = false
@@ -20,5 +22,10 @@ object CorrilySDK {
     dependencies = DependencyManager(context)
     dependencies.config.setApiKey(apiKey)
     initialized = true
+  }
+
+  @Composable
+  fun renderPaywall() {
+    PaywallView()
   }
 }
