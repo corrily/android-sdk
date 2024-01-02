@@ -54,6 +54,13 @@ dependencies {
   implementation("androidx.compose.ui:ui")
   implementation("androidx.compose.ui:ui-tooling-preview")
   implementation("androidx.compose.material3:material3")
+
+  val lifecycle_version = "2.6.2"
+
+  implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+  implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+  implementation("io.coil-kt:coil-compose:2.5.0")
+
   debugImplementation("androidx.compose.ui:ui-tooling")
   androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }

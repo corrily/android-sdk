@@ -81,5 +81,5 @@ data class PaywallDto(
   val country: String,
   val userId: String?,
   val ip: String?,
-  val paywallId: String?
+  val paywallId: Int?
 )

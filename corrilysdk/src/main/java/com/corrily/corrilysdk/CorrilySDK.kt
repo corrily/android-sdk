@@ -3,6 +3,7 @@ package com.corrily.corrilysdk
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import com.corrily.corrilysdk.dependencymanager.DependencyManager
 import com.corrily.corrilysdk.views.PaywallView
 
@@ -25,7 +26,7 @@ object CorrilySDK {
   }
 
   @Composable
-  fun renderPaywall() {
-    PaywallView()
+  fun RenderPaywall() {
+    PaywallView(factory = dependencies)
   }
 }
