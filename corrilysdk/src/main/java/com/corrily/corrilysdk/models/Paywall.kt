@@ -1,12 +1,21 @@
 package com.corrily.corrilysdk.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+@Serializable
+enum class ProductInterval {
+  @SerialName("month")
+  Month,
+  @SerialName("year")
+  Year
+}
 
 @Serializable
 data class PaywallProduct(
   val id: Int,
   val name: String,
-  val interval: String,
+  val interval: ProductInterval,
   val intervalCount: Int,
   val apiId: String,
   val price: String,

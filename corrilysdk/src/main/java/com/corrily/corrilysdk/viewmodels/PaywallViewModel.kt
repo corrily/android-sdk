@@ -26,7 +26,7 @@ class PaywallViewModel(private val factory: DependencyProtocol): ViewModel() {
   val error = _error.value
 
   init {
-    getPaywall()
+//    getPaywall()
   }
 
   fun purchase(product: PaywallProduct) {}

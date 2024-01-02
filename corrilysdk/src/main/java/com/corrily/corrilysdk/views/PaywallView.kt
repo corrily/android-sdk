@@ -4,30 +4,23 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.corrily.corrilysdk.dependencymanager.DependencyProtocol
 import com.corrily.corrilysdk.models.PaywallProduct
-import com.corrily.corrilysdk.viewmodels.PaywallViewModel
+import com.corrily.corrilysdk.models.ProductInterval
 
 @Composable
 fun PaywallView(factory: DependencyProtocol) {
-  var billingType: String by remember {
-    mutableStateOf("month")
+  var billingType: ProductInterval by remember {
+    mutableStateOf(ProductInterval.Month)
   }
   var isChecked by remember {
     mutableStateOf(false)
@@ -58,14 +51,27 @@ fun PaywallView(factory: DependencyProtocol) {
     Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
       AsyncImage(model = "https://placehold.co/2000x400/png", contentDescription = null)
     }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-      Text("Choose a plan that meets your needs", style = Typography().displaySmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+    Column(
+      horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier.fillMaxWidth(),
+      verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+      Text(
+        "Choose a plan that meets your needs",
+        style = Typography().displaySmall,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center
+      )
       Text("Free trial for new users only", style = Typography().titleLarge, textAlign = TextAlign.Center)
     }
-//    Switch(checked = , onCheckedChange = )
-    BillingTypeToggle(leftLabel = "Billed Monthly", rightLabel = "Billed Yearly", value = billingType, onValueChange = {
-      if (billingType == "month") billingType = "year" else billingType = "month"
-    })
+
+    BillingTypeToggle(
+      leftLabel = "Billed Monthly",
+      rightLabel = "Billed Yearly",
+      value = billingType,
+      onValueChange = {
+        billingType = it
+      })
 
     (1..3).map {
       Box(
@@ -125,18 +131,23 @@ fun PaywallView(factory: DependencyProtocol) {
       }
     }
     Column {
-      Button(onClick = {
-        println("Click")
-      },
+      Button(
+        onClick = {
+          println("Click")
+        },
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
-        .fillMaxWidth(),
-        colors= ButtonDefaults.buttonColors(containerColor = Color.Blue)
-        ) {
-        Text(text = "Continue",style = Typography().bodyLarge, color = Color.White, modifier = Modifier.padding(8.dp))
+          .fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+      ) {
+        Text(text = "Continue", style = Typography().bodyLarge, color = Color.White, modifier = Modifier.padding(8.dp))
       }
 
-      Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+      ) {
         TextButton(onClick = { /*TODO*/ }) {
           Text("Restore purchase", color = Color.Black)
         }
