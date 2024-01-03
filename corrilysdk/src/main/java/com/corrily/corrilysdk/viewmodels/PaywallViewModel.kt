@@ -1,7 +1,6 @@
 package com.corrily.corrilysdk.viewmodels
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.corrily.corrilysdk.dependencymanager.DependencyProtocol
@@ -20,13 +19,15 @@ enum class Status {
 }
 
 class PaywallViewModel(private val factory: DependencyProtocol) : ViewModel() {
-  private val status: MutableState<Status> = mutableStateOf(Status.Pending)
-  val State<Status>.isLoading: Boolean
-    get() = value == Status.Pending
-  val State<Status>.isError: Boolean
-    get() = value == Status.Error
-  val State<Status>.isSuccess: Boolean
-    get() = value == Status.Success
+  private val _status: MutableState<Status> = mutableStateOf(Status.Pending)
+  val status: Status
+    get() = _status.value
+  val isLoading: Boolean
+    get() = _status.value == Status.Pending
+  val isError: Boolean
+    get() = _status.value == Status.Error
+  val isSuccess: Boolean
+    get() = _status.value == Status.Success
 
   private val _error: MutableState<String?> = mutableStateOf(null)
   private val _data: MutableState<PaywallResponse?> = mutableStateOf(null)
@@ -50,7 +51,7 @@ class PaywallViewModel(private val factory: DependencyProtocol) : ViewModel() {
   fun restorePurchase() {}
 
   private fun getPaywall(paywallId: Int? = null) {
-    status.value = Status.Pending
+    _status.value = Status.Pending
     _error.value = null
 
     val dto = PaywallDto(
@@ -64,11 +65,14 @@ class PaywallViewModel(private val factory: DependencyProtocol) : ViewModel() {
       try {
         val response = factory.api.getPaywall(dto)
         _data.value = response
-        status.value = Status.Success
+        _status.value = Status.Success
       } catch (error: Exception) {
-        // TODO: Handle fallback paywall
-        _error.value = error.message
-        status.value = Status.Error
+        if (factory.paywall.fallbackPaywall != null) {
+          _data.value = factory.paywall.fallbackPaywall
+        } else {
+          _error.value = error.message
+          _status.value = Status.Error
+        }
       }
     }
 

@@ -3,8 +3,11 @@ package com.corrily.corrilysdk
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import com.corrily.corrilysdk.dependencymanager.DependencyManager
+import com.corrily.corrilysdk.models.IdentifyDto
+import com.corrily.corrilysdk.models.IdentifyResponse
+import com.corrily.corrilysdk.models.PaywallDto
+import com.corrily.corrilysdk.models.PaywallResponse
 import com.corrily.corrilysdk.views.PaywallView
 
 object CorrilySDK {
@@ -28,5 +31,28 @@ object CorrilySDK {
   @Composable
   fun RenderPaywall() {
     PaywallView(factory = dependencies)
+  }
+
+  fun setFallbackPaywall(jsonString: String) {
+    dependencies.paywall.setFallbackPaywall(jsonString)
+  }
+
+  fun setUser(userId: String?, country: String?) {
+    dependencies.user.setUser(userId, country)
+  }
+
+  suspend fun identifyUser(userId: String, country: String?): IdentifyResponse {
+    val dto = IdentifyDto(userId, ip = dependencies.user.deviceId, country)
+    return dependencies.api.identifyUser(dto)
+  }
+
+  suspend fun requestPaywall(paywallId: Int?): PaywallResponse {
+    val dto = PaywallDto(
+      country = dependencies.user.country,
+      userId = dependencies.user.userId,
+      ip = dependencies.user.deviceId,
+      paywallId = paywallId
+    )
+    return dependencies.api.getPaywall(dto)
   }
 }
