@@ -12,33 +12,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.corrily.corrilysdk.dependencymanager.DependencyProtocol
 import com.corrily.corrilysdk.models.PaywallProduct
 import com.corrily.corrilysdk.models.ProductInterval
+import com.corrily.corrilysdk.viewmodels.PaywallViewModel
 
 @Composable
 fun PaywallView(factory: DependencyProtocol) {
   var billingType: ProductInterval by remember {
     mutableStateOf(ProductInterval.Month)
   }
-  var isChecked by remember {
-    mutableStateOf(false)
-  }
   var selectedProduct: PaywallProduct? by remember {
     mutableStateOf(null)
   }
-  var selectedItem: Int by remember {
-    mutableStateOf(1)
+
+  val paywallVM: PaywallViewModel = viewModel(factory = object : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+      return PaywallViewModel(factory = factory) as T
+    }
+  })
+
+  val headerImage = paywallVM.paywall?.pricingPage?.headerImage
+  val headerText = paywallVM.paywall?.pricingPage?.header
+  val headerDescription = paywallVM.paywall?.pricingPage?.description
+  val footerDescription = paywallVM.paywall?.pricingPage?.footerDescription
+
+  val purchaseLabel =
+    if (selectedProduct?.trial?.trialDays != null) "Start your ${selectedProduct!!.trial!!.trialDays}-day free trial" else "Continue"
+
+  val products = when (billingType) {
+    ProductInterval.Year -> paywallVM.yearlyProducts
+    else -> paywallVM.monthlyProducts
   }
-
-//  val paywallVM: PaywallViewModel = viewModel(factory = object : ViewModelProvider.Factory {
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//      return PaywallViewModel(factory = factory) as T
-//    }
-//  })
-
-//  val headerImage = paywallVM.paywall.value?.pricingPage?.headerImage
 
   Column(
     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -48,23 +57,35 @@ fun PaywallView(factory: DependencyProtocol) {
       .padding(16.dp)
   ) {
 
-    Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-      AsyncImage(model = "https://placehold.co/2000x400/png", contentDescription = null)
-    }
-    Column(
-      horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier.fillMaxWidth(),
-      verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-      Text(
-        "Choose a plan that meets your needs",
-        style = Typography().displaySmall,
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Center
-      )
-      Text("Free trial for new users only", style = Typography().titleLarge, textAlign = TextAlign.Center)
+    // image
+    if (!headerImage.isNullOrBlank()) {
+      Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+        AsyncImage(model = headerImage, contentDescription = null)
+      }
     }
 
+    // header and description
+    if (!headerText.isNullOrBlank() || !headerDescription.isNullOrBlank()) {
+      Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+      ) {
+        if (!headerText.isNullOrBlank()) {
+          Text(
+            headerText,
+            style = Typography().displaySmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+          )
+        }
+        if (!headerDescription.isNullOrBlank()) {
+          Text(headerDescription, style = Typography().titleLarge, textAlign = TextAlign.Center)
+        }
+      }
+    }
+
+    // toggle billing type
     BillingTypeToggle(
       leftLabel = "Billed Monthly",
       rightLabel = "Billed Yearly",
@@ -73,22 +94,22 @@ fun PaywallView(factory: DependencyProtocol) {
         billingType = it
       })
 
-    (1..3).map {
+    // products
+    products.map {
       Box(
         modifier = Modifier
           .clickable(onClick = {
-            println("Click")
-            selectedItem = it
+            selectedProduct = it
           })
           .fillMaxWidth()
           .border(
             width = 2.dp,
-            color = if (selectedItem == it) Color.Blue else Color.Gray.copy(alpha = 0.5f),
+            color = if (selectedProduct?.id == it.id) Color.Blue else Color.Gray.copy(alpha = 0.5f),
             shape = RoundedCornerShape(16.dp)
           )
           .padding(16.dp)
       ) {
-        if (it == 1) {
+        if (!it.overrides?.badge.isNullOrBlank()) {
           Row(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier
@@ -104,7 +125,7 @@ fun PaywallView(factory: DependencyProtocol) {
                 .background(color = Color.Blue)
             ) {
               Text(
-                "Recommended",
+                it.overrides!!.badge,
                 color = Color.White,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
               )
@@ -113,42 +134,63 @@ fun PaywallView(factory: DependencyProtocol) {
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-          Text("Product Name", style = Typography().titleMedium, fontWeight = FontWeight.Bold)
-          Text("Product Description", style = Typography().titleMedium)
+          Text(it.name, style = Typography().titleMedium, fontWeight = FontWeight.Bold)
+          if (!it.overrides?.description.isNullOrBlank()) {
+            Text(it.overrides!!.description, style = Typography().titleMedium)
+          }
           Row {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-              Text("- Product features", style = Typography().bodyMedium)
-              Text("- Product features", style = Typography().bodyMedium)
-              Text("- Product features", style = Typography().bodyMedium)
-              Text("- Product features", style = Typography().bodyMedium)
+              it.features.map { feat ->
+                Text("- ${feat.name}", style = Typography().bodyMedium)
+              }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-              Text("$1000", style = Typography().titleLarge, fontWeight = FontWeight.Bold)
-              Text("Billed monthly", style = Typography().bodyMedium, fontWeight = FontWeight.Bold)
+              Text(it.price, style = Typography().titleLarge, fontWeight = FontWeight.Bold)
+              Text(
+                "Billed ${if (billingType == ProductInterval.Month) "monthly" else "yearly"}",
+                style = Typography().bodyMedium,
+                fontWeight = FontWeight.Bold
+              )
             }
           }
         }
       }
     }
+
+    if (!paywallVM.error.isNullOrBlank()) {
+      Text(paywallVM.error!!, color = Color.Red, style = Typography().bodyMedium)
+    }
+
+    // purchase button
     Column {
       Button(
         onClick = {
-          println("Click")
+          if (selectedProduct != null) {
+            paywallVM.purchase(selectedProduct!!)
+          }
         },
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
           .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
       ) {
-        Text(text = "Continue", style = Typography().bodyLarge, color = Color.White, modifier = Modifier.padding(8.dp))
+        Text(
+          text = purchaseLabel,
+          style = Typography().bodyLarge,
+          color = Color.White,
+          modifier = Modifier.padding(8.dp)
+        )
       }
 
+      // restore purchase, t&c
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()
       ) {
-        TextButton(onClick = { /*TODO*/ }) {
+        TextButton(onClick = {
+          paywallVM.restorePurchase()
+        }) {
           Text("Restore purchase", color = Color.Black)
         }
         Text("|")
