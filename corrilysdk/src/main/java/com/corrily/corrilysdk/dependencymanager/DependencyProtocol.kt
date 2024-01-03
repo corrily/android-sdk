@@ -8,4 +8,5 @@ interface DependencyProtocol {
   var api: API
   var storage: StorageManager
   var user: UserManager
+  var paywall: PaywallManager
 }

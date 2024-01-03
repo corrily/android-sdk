@@ -20,6 +20,7 @@ import com.corrily.corrilysdk.dependencymanager.DependencyProtocol
 import com.corrily.corrilysdk.models.PaywallProduct
 import com.corrily.corrilysdk.models.ProductInterval
 import com.corrily.corrilysdk.viewmodels.PaywallViewModel
+import com.corrily.corrilysdk.viewmodels.Status
 
 @Composable
 fun PaywallView(factory: DependencyProtocol) {
@@ -36,168 +37,199 @@ fun PaywallView(factory: DependencyProtocol) {
     }
   })
 
-  val headerImage = paywallVM.paywall?.pricingPage?.headerImage
-  val headerText = paywallVM.paywall?.pricingPage?.header
-  val headerDescription = paywallVM.paywall?.pricingPage?.description
-  val footerDescription = paywallVM.paywall?.pricingPage?.footerDescription
-
-  val purchaseLabel =
-    if (selectedProduct?.trial?.trialDays != null) "Start your ${selectedProduct!!.trial!!.trialDays}-day free trial" else "Continue"
-
-  val products = when (billingType) {
-    ProductInterval.Year -> paywallVM.yearlyProducts
-    else -> paywallVM.monthlyProducts
-  }
-
-  Column(
-    verticalArrangement = Arrangement.spacedBy(16.dp),
-    modifier = Modifier
-      .verticalScroll(rememberScrollState())
-      .fillMaxWidth()
-      .padding(16.dp)
-  ) {
-
-    // image
-    if (!headerImage.isNullOrBlank()) {
-      Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-        AsyncImage(model = headerImage, contentDescription = null)
+  when (paywallVM.status) {
+    Status.Pending -> {
+      Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+          modifier = Modifier.align(Alignment.Center),
+          verticalArrangement = Arrangement.Center,
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          CircularProgressIndicator()
+        }
       }
     }
 
-    // header and description
-    if (!headerText.isNullOrBlank() || !headerDescription.isNullOrBlank()) {
+    Status.Error -> {
+      Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+          modifier = Modifier.align(Alignment.Center),
+          verticalArrangement = Arrangement.Center,
+          horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+          Text("No paywall to render")
+          if (!paywallVM.error.isNullOrBlank()) {
+            Text(paywallVM.error!!)
+          }
+        }
+      }
+    }
+
+    Status.Success -> {
+      val headerImage = paywallVM.paywall?.pricingPage?.headerImage
+      val headerText = paywallVM.paywall?.pricingPage?.header
+      val headerDescription = paywallVM.paywall?.pricingPage?.description
+      val footerDescription = paywallVM.paywall?.pricingPage?.footerDescription
+
+      val purchaseLabel =
+        if (selectedProduct?.trial?.trialDays != null) "Start your ${selectedProduct!!.trial!!.trialDays}-day free trial" else "Continue"
+
+      val products = when (billingType) {
+        ProductInterval.Year -> paywallVM.yearlyProducts
+        else -> paywallVM.monthlyProducts
+      }
       Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-      ) {
-        if (!headerText.isNullOrBlank()) {
-          Text(
-            headerText,
-            style = Typography().displaySmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-          )
-        }
-        if (!headerDescription.isNullOrBlank()) {
-          Text(headerDescription, style = Typography().titleLarge, textAlign = TextAlign.Center)
-        }
-      }
-    }
-
-    // toggle billing type
-    BillingTypeToggle(
-      leftLabel = "Billed Monthly",
-      rightLabel = "Billed Yearly",
-      value = billingType,
-      onValueChange = {
-        billingType = it
-      })
-
-    // products
-    products.map {
-      Box(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
-          .clickable(onClick = {
-            selectedProduct = it
-          })
+          .verticalScroll(rememberScrollState())
           .fillMaxWidth()
-          .border(
-            width = 2.dp,
-            color = if (selectedProduct?.id == it.id) Color.Blue else Color.Gray.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(16.dp)
-          )
           .padding(16.dp)
       ) {
-        if (!it.overrides?.badge.isNullOrBlank()) {
-          Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier
-              .fillMaxWidth()
-              .offset(x = 16.dp, y = (-10).dp)
+
+        // image
+        if (!headerImage.isNullOrBlank()) {
+          Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            AsyncImage(model = headerImage, contentDescription = null)
+          }
+        }
+
+        // header and description
+        if (!headerText.isNullOrBlank() || !headerDescription.isNullOrBlank()) {
+          Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
           ) {
-            Box(
-              modifier = Modifier
-                .padding(
-                  horizontal = 8.dp
-                )
-                .clip(shape = RoundedCornerShape(8.dp))
-                .background(color = Color.Blue)
-            ) {
+            if (!headerText.isNullOrBlank()) {
               Text(
-                it.overrides!!.badge,
-                color = Color.White,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                headerText,
+                style = Typography().displaySmall,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
               )
+            }
+            if (!headerDescription.isNullOrBlank()) {
+              Text(headerDescription, style = Typography().titleLarge, textAlign = TextAlign.Center)
             }
           }
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-          Text(it.name, style = Typography().titleMedium, fontWeight = FontWeight.Bold)
-          if (!it.overrides?.description.isNullOrBlank()) {
-            Text(it.overrides!!.description, style = Typography().titleMedium)
-          }
-          Row {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-              it.features.map { feat ->
-                Text("- ${feat.name}", style = Typography().bodyMedium)
+        // toggle billing type
+        BillingTypeToggle(
+          leftLabel = "Billed Monthly",
+          rightLabel = "Billed Yearly",
+          value = billingType,
+          onValueChange = {
+            billingType = it
+          })
+
+        // products
+        products.map {
+          Box(
+            modifier = Modifier
+              .clickable(onClick = {
+                selectedProduct = it
+              })
+              .fillMaxWidth()
+              .border(
+                width = 2.dp,
+                color = if (selectedProduct?.id == it.id) Color.Blue else Color.Gray.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(16.dp)
+              )
+              .padding(16.dp)
+          ) {
+            if (!it.overrides?.badge.isNullOrBlank()) {
+              Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .offset(x = 16.dp, y = (-10).dp)
+              ) {
+                Box(
+                  modifier = Modifier
+                    .padding(
+                      horizontal = 8.dp
+                    )
+                    .clip(shape = RoundedCornerShape(8.dp))
+                    .background(color = Color.Blue)
+                ) {
+                  Text(
+                    it.overrides!!.badge,
+                    color = Color.White,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                  )
+                }
               }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-              Text(it.price, style = Typography().titleLarge, fontWeight = FontWeight.Bold)
-              Text(
-                "Billed ${if (billingType == ProductInterval.Month) "monthly" else "yearly"}",
-                style = Typography().bodyMedium,
-                fontWeight = FontWeight.Bold
-              )
+
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+              Text(it.name, style = Typography().titleMedium, fontWeight = FontWeight.Bold)
+              if (!it.overrides?.description.isNullOrBlank()) {
+                Text(it.overrides!!.description, style = Typography().titleMedium)
+              }
+              Row {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                  it.features.map { feat ->
+                    Text("- ${feat.name}", style = Typography().bodyMedium)
+                  }
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                  Text(it.price, style = Typography().titleLarge, fontWeight = FontWeight.Bold)
+                  Text(
+                    "Billed ${if (billingType == ProductInterval.Month) "monthly" else "yearly"}",
+                    style = Typography().bodyMedium,
+                    fontWeight = FontWeight.Bold
+                  )
+                }
+              }
             }
           }
         }
-      }
-    }
 
-    if (!paywallVM.error.isNullOrBlank()) {
-      Text(paywallVM.error!!, color = Color.Red, style = Typography().bodyMedium)
-    }
-
-    // purchase button
-    Column {
-      Button(
-        onClick = {
-          if (selectedProduct != null) {
-            paywallVM.purchase(selectedProduct!!)
-          }
-        },
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-          .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
-      ) {
-        Text(
-          text = purchaseLabel,
-          style = Typography().bodyLarge,
-          color = Color.White,
-          modifier = Modifier.padding(8.dp)
-        )
-      }
-
-      // restore purchase, t&c
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
-      ) {
-        TextButton(onClick = {
-          paywallVM.restorePurchase()
-        }) {
-          Text("Restore purchase", color = Color.Black)
+        if (!paywallVM.error.isNullOrBlank()) {
+          Text(paywallVM.error!!, color = Color.Red, style = Typography().bodyMedium)
         }
-        Text("|")
-        TextButton(onClick = { /*TODO*/ }) {
-          Text("Terms and Conditions", color = Color.Black)
+
+        // purchase button
+        Column {
+          Button(
+            onClick = {
+              if (selectedProduct != null) {
+                paywallVM.purchase(selectedProduct!!)
+              }
+            },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+              .fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+          ) {
+            Text(
+              text = purchaseLabel,
+              style = Typography().bodyLarge,
+              color = Color.White,
+              modifier = Modifier.padding(8.dp)
+            )
+          }
+
+          // restore purchase, t&c
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            TextButton(onClick = {
+              paywallVM.restorePurchase()
+            }) {
+              Text("Restore purchase", color = Color.Black)
+            }
+            Text("|")
+            TextButton(onClick = { /*TODO*/ }) {
+              Text("Terms and Conditions", color = Color.Black)
+            }
+          }
         }
       }
     }
   }
+
 }
