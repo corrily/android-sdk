@@ -1,5 +1,6 @@
 package com.corrily.corrilysdk.views
 
+import android.app.Activity
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -16,14 +18,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.corrily.corrilysdk.billing.BillingManager
 import com.corrily.corrilysdk.dependencymanager.DependencyProtocol
+import com.corrily.corrilysdk.misc.Logger
 import com.corrily.corrilysdk.models.PaywallProduct
 import com.corrily.corrilysdk.models.ProductInterval
 import com.corrily.corrilysdk.viewmodels.PaywallViewModel
 import com.corrily.corrilysdk.viewmodels.Status
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
-fun PaywallView(factory: DependencyProtocol) {
+fun PaywallView(activity: Activity, factory: DependencyProtocol) {
+  val context = LocalContext.current
+  val billingManager = BillingManager.getInstance(context = context)
   var billingType: ProductInterval by remember {
     mutableStateOf(ProductInterval.Month)
   }
@@ -195,7 +204,9 @@ fun PaywallView(factory: DependencyProtocol) {
           Button(
             onClick = {
               if (selectedProduct != null) {
-                paywallVM.purchase(selectedProduct!!)
+                CoroutineScope(Dispatchers.IO).launch {
+                  billingManager.purchase(activity = activity, productId = selectedProduct!!.apiId)
+                }
               }
             },
             shape = RoundedCornerShape(16.dp),
@@ -218,12 +229,16 @@ fun PaywallView(factory: DependencyProtocol) {
             modifier = Modifier.fillMaxWidth()
           ) {
             TextButton(onClick = {
-              paywallVM.restorePurchase()
+              CoroutineScope(Dispatchers.IO).launch {
+                billingManager.restorePurchase()
+              }
             }) {
               Text("Restore purchase", color = Color.Black)
             }
             Text("|")
-            TextButton(onClick = { /*TODO*/ }) {
+            TextButton(onClick = {
+              Logger.warn("PaywallView", "Not implemented yet!")
+            }) {
               Text("Terms and Conditions", color = Color.Black)
             }
           }

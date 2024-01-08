@@ -59,6 +59,9 @@ dependencies {
   val lifecycle_version = "2.6.2"
   implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
   implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
+  implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+  implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version")
+  implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
   implementation("io.coil-kt:coil-compose:2.5.0")
 
   val billing_version = "6.1.0"

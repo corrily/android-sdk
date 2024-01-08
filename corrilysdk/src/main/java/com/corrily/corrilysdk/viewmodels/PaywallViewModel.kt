@@ -46,7 +46,11 @@ class PaywallViewModel(private val factory: DependencyProtocol) : ViewModel() {
     getPaywall()
   }
 
-  fun purchase(product: PaywallProduct) {}
+  fun purchase(product: PaywallProduct) {
+    CoroutineScope(Dispatchers.IO).launch {
+
+    }
+  }
 
   fun restorePurchase() {}
 

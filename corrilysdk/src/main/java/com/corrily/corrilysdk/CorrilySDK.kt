@@ -1,9 +1,11 @@
 package com.corrily.corrilysdk
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
 import com.corrily.corrilysdk.dependencymanager.DependencyManager
+import com.corrily.corrilysdk.dependencymanager.DependencyProtocol
 import com.corrily.corrilysdk.models.IdentifyDto
 import com.corrily.corrilysdk.models.IdentifyResponse
 import com.corrily.corrilysdk.models.PaywallDto
@@ -29,8 +31,12 @@ object CorrilySDK {
   }
 
   @Composable
-  fun RenderPaywall() {
-    PaywallView(factory = dependencies)
+  fun RenderPaywall(activity: Activity, CustomView: (@Composable (DependencyProtocol) -> Unit)? = null) {
+    if (CustomView != null) {
+      CustomView(dependencies)
+    } else {
+      PaywallView(activity = activity, factory = dependencies)
+    }
   }
 
   fun setFallbackPaywall(jsonString: String) {
