@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 enum class ProductInterval {
   @SerialName("month")
   Month,
+
   @SerialName("year")
   Year
 }
@@ -23,7 +24,7 @@ data class PaywallProduct(
   val cents: Boolean,
   val features: List<PaywallProductFeature>,
   val overrides: PaywallProductOverride?,
-  val trial: PaywallProductTrial?
+  val trial: PaywallProductTrial?,
 )
 
 @Serializable
@@ -42,7 +43,7 @@ data class PaywallProductOverride(
 data class PaywallProductTrial(
   val trialId: Int,
   val trialDays: Int,
-  val trialType: String
+  val trialType: String,
 )
 
 @Serializable
@@ -53,7 +54,7 @@ data class PaywallProductFeature(
   val description: String,
   val apiId: String,
   val status: String,
-  val type: String
+  val type: String,
 )
 
 @Serializable
@@ -73,16 +74,16 @@ data class PricingPage(
   val channel: String,
   val showFeatureComparisonTable: Boolean,
   val featureComparisonTableText: String,
-  val isDefault: Boolean = false,
+  val isDefault: Boolean? = false,
   val headerImage: String? = null,
-  val footerDescription: String? = null
+  val footerDescription: String? = null,
 )
 
 @Serializable
 data class PaywallResponse(
   val success: Boolean,
   val pricingPage: PricingPage,
-  val products: List<PaywallProduct>
+  val products: List<PaywallProduct>,
 )
 
 @Serializable
@@ -90,5 +91,5 @@ data class PaywallDto(
   val country: String,
   val userId: String?,
   val ip: String?,
-  val paywallId: Int?
+  val paywallId: Int?,
 )
