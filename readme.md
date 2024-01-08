@@ -20,10 +20,6 @@ Edit your AndroidManifest.xml by adding:
 
 ## Usage
 
-Import the SDK module: `import CorrilySDK`
-
-All public methods are documented, please see details in their apidoc.
-
 ### Initialization
 
 To initiate the CorrilySDK, call the `start` method with your `apiKey`. This should only be done once, typically when your app is launched.
@@ -56,7 +52,7 @@ By default, Corrily SDK tries to **fetch User's country from Telephony Service**
 
 It's also possible to explicitly set User's country by running:
 
-```swift
+```kotlin
 CorrilySDK.setUser(userId = "my_user_id", country = "US")
 ```
 
