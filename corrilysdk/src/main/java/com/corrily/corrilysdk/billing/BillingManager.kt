@@ -113,11 +113,9 @@ class BillingManager(private val context: Context) : PurchasesUpdatedListener,
   }
 
   private fun handlePurchases(purchases: List<Purchase>) {
-    Logger.info("Manager Purchases", purchases.toString())
     for (purchase in purchases) {
       when (purchase.purchaseState) {
         PurchaseState.PURCHASED -> {
-          Logger.info("Manager Products", purchase.products.toString())
           for (product in purchase.products) {
             EntitlementsManager.addProduct(productId = product)
           }
