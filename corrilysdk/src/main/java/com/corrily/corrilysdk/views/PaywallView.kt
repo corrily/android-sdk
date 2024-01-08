@@ -30,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun PaywallView(activity: Activity, factory: DependencyProtocol) {
+fun PaywallView(activity: Activity, factory: DependencyProtocol, paywallId: Int? = null) {
   val context = LocalContext.current
   val billingManager = BillingManager.getInstance(context = context)
   var billingType: ProductInterval by remember {
@@ -42,7 +42,7 @@ fun PaywallView(activity: Activity, factory: DependencyProtocol) {
 
   val paywallVM: PaywallViewModel = viewModel(factory = object : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-      return PaywallViewModel(factory = factory) as T
+      return PaywallViewModel(factory = factory, paywallId = paywallId) as T
     }
   })
 

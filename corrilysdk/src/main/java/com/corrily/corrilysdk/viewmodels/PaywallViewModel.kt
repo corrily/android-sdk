@@ -18,7 +18,7 @@ enum class Status {
   Error
 }
 
-class PaywallViewModel(private val factory: DependencyProtocol) : ViewModel() {
+class PaywallViewModel(private val factory: DependencyProtocol, private val paywallId: Int? = null) : ViewModel() {
   private val _status: MutableState<Status> = mutableStateOf(Status.Pending)
   val status: Status
     get() = _status.value
@@ -43,7 +43,7 @@ class PaywallViewModel(private val factory: DependencyProtocol) : ViewModel() {
     get() = _data.value?.products?.filter { it.interval == ProductInterval.Year } ?: listOf()
 
   init {
-    getPaywall()
+    getPaywall(paywallId = paywallId)
   }
 
   fun purchase(product: PaywallProduct) {
