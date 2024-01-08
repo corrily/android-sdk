@@ -31,11 +31,15 @@ object CorrilySDK {
   }
 
   @Composable
-  fun RenderPaywall(activity: Activity, CustomView: (@Composable (DependencyProtocol) -> Unit)? = null) {
+  fun RenderPaywall(
+    activity: Activity,
+    paywallId: Int? = null,
+    CustomView: (@Composable (DependencyProtocol) -> Unit)? = null,
+  ) {
     if (CustomView != null) {
       CustomView(dependencies)
     } else {
-      PaywallView(activity = activity, factory = dependencies)
+      PaywallView(activity = activity, factory = dependencies, paywallId = paywallId)
     }
   }
 
@@ -43,16 +47,16 @@ object CorrilySDK {
     dependencies.paywall.setFallbackPaywall(jsonString)
   }
 
-  fun setUser(userId: String?, country: String?) {
-    dependencies.user.setUser(userId, country)
+  fun setUser(userId: String? = null, country: String? = null, disableIdentificationRequest: Boolean = false) {
+    dependencies.user.setUser(userId, country, disableIdentificationRequest)
   }
 
-  suspend fun identifyUser(userId: String, country: String?): IdentifyResponse {
+  suspend fun identifyUser(userId: String?, country: String?): IdentifyResponse {
     val dto = IdentifyDto(userId, ip = dependencies.user.deviceId, country)
     return dependencies.api.identifyUser(dto)
   }
 
-  suspend fun requestPaywall(paywallId: Int?): PaywallResponse {
+  suspend fun requestPaywall(paywallId: Int? = null): PaywallResponse {
     val dto = PaywallDto(
       country = dependencies.user.country,
       userId = dependencies.user.userId,
