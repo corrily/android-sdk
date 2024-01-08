@@ -47,8 +47,8 @@ object CorrilySDK {
     dependencies.paywall.setFallbackPaywall(jsonString)
   }
 
-  fun setUser(userId: String?, country: String?) {
-    dependencies.user.setUser(userId, country)
+  fun setUser(userId: String? = null, country: String? = null, disableIdentificationRequest: Boolean = false) {
+    dependencies.user.setUser(userId, country, disableIdentificationRequest)
   }
 
   suspend fun identifyUser(userId: String?, country: String?): IdentifyResponse {

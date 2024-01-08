@@ -16,15 +16,16 @@ class Endpoint<Response>(
   private val path: String,
   private val method: HttpMethod = HttpMethod.Get,
   private val queryItems: List<URLQueryItem>? = null,
-  private val body: ByteArray? = null
+  private val body: ByteArray? = null,
 ) {
 
   enum class HttpMethod(val method: String) {
     Get("GET"),
     Post("POST")
   }
+
   suspend fun createURLRequest(factory: DependencyProtocol): HttpURLConnection? = coroutineScope {
-    val queries = queryItems?.joinToString("&") { "${it.name}=${it.value}"} ?: ""
+    val queries = queryItems?.joinToString("&") { "${it.name}=${it.value}" } ?: ""
     val url = URL("${factory.config.channel.baseUrl}${path}?${queries}")
     val connection = url.openConnection() as HttpURLConnection
 
@@ -52,9 +53,7 @@ class Endpoint<Response>(
 
   companion object {
     fun paywall(dto: PaywallDto): Endpoint<PaywallResponse> {
-
       val body = JSON.encodeToString<PaywallDto>(dto)
-
       return Endpoint(
         path = "/v1/paywall",
         method = HttpMethod.Post,

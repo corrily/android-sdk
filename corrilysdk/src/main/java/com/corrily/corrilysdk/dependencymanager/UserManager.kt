@@ -1,9 +1,13 @@
 package com.corrily.corrilysdk.dependencymanager
 
 import android.content.Context
-import java.util.Random
+import com.corrily.corrilysdk.models.IdentifyDto
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.util.*
 
-class UserManager(context: Context, factory: DependencyProtocol) {
+class UserManager(private val context: Context, private val factory: DependencyProtocol) {
   var deviceId: String
   var userId: String? = null
   var country: String
@@ -19,10 +23,18 @@ class UserManager(context: Context, factory: DependencyProtocol) {
     this.country = (CountryCodeHelper.getCodeFromTelephony(context) ?: CountryCodeHelper.getCodeFromLocale()).toString()
   }
 
-  fun setUser(userId: String?, country: String?) {
+  @OptIn(DelicateCoroutinesApi::class)
+  fun setUser(userId: String?, country: String?, disableIdentificationRequest: Boolean = false) {
     this.userId = userId
     if (country != null) {
       this.country = country
+    }
+
+    if (!disableIdentificationRequest && userId != null) {
+      GlobalScope.launch {
+        val dto = IdentifyDto(userId = userId, ip = factory.user.deviceId, country = country)
+        factory.api.identifyUser(dto)
+      }
     }
   }
 
