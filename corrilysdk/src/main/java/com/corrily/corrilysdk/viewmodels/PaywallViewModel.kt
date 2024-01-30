@@ -46,14 +46,6 @@ class PaywallViewModel(private val factory: DependencyProtocol, private val payw
     getPaywall(paywallId = paywallId)
   }
 
-  fun purchase(product: PaywallProduct) {
-    CoroutineScope(Dispatchers.IO).launch {
-
-    }
-  }
-
-  fun restorePurchase() {}
-
   private fun getPaywall(paywallId: Int? = null) {
     _status.value = Status.Pending
     _error.value = null

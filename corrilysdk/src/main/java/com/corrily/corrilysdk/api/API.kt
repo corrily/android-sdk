@@ -11,7 +11,7 @@ import java.net.HttpURLConnection
 
 class API(val factory: DependencyProtocol) {
   private suspend inline fun <reified Response> request(endpoint: Endpoint<Response>): Response {
-    val request = endpoint.createURLRequest(factory = factory) ?: throw HttpError.InvalidRequest()
+    val request = endpoint.createURLRequest(factory = factory)
 
     request.getRequestProperty("X-Api-Key") ?: throw HttpError.NotAuthenticated()
 

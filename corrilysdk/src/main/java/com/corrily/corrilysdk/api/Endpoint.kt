@@ -24,7 +24,7 @@ class Endpoint<Response>(
     Post("POST")
   }
 
-  suspend fun createURLRequest(factory: DependencyProtocol): HttpURLConnection? = coroutineScope {
+  suspend fun createURLRequest(factory: DependencyProtocol): HttpURLConnection = coroutineScope {
     val queries = queryItems?.joinToString("&") { "${it.name}=${it.value}" } ?: ""
     val url = URL("${factory.config.channel.baseUrl}${path}?${queries}")
     val connection = url.openConnection() as HttpURLConnection
