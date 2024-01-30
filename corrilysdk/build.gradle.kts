@@ -2,7 +2,10 @@ plugins {
   id("com.android.library")
   id("org.jetbrains.kotlin.android")
   kotlin("plugin.serialization") version "1.9.21"
+  `maven-publish`
 }
+
+version = "0.1.0"
 
 android {
   namespace = "com.corrily.corrilysdk"
@@ -36,10 +39,30 @@ android {
   kotlinOptions {
     jvmTarget = "1.8"
   }
+
+  publishing {
+    singleVariant("release") {
+      withSourcesJar()
+      withJavadocJar()
+    }
+  }
+}
+
+afterEvaluate {
+  publishing {
+    publications {
+      register<MavenPublication>("release") {
+        from(components["release"])
+
+        groupId = "com.github.corrily"
+        artifactId = "corrily-android-sdk"
+        version = version
+      }
+    }
+  }
 }
 
 dependencies {
-
   implementation("androidx.core:core-ktx:1.12.0")
   implementation("androidx.appcompat:appcompat:1.6.1")
   implementation("com.google.android.material:material:1.9.0")
