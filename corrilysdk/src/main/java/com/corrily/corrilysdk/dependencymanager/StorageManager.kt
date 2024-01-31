@@ -23,7 +23,7 @@ class StorageManager(private val context: Context) {
 
   fun read(key: String): String? {
     val dataStoreKey = stringPreferencesKey(key)
-    var value: String? = null
+    var value: String?
     runBlocking {
       value = context.dataStore.data.first()[dataStoreKey]
     }
