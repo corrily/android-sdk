@@ -15,5 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Corrily"
 include(":app")
-include(":sdk")
-include(":CorrilySDK")
+include(":corrilysdk")

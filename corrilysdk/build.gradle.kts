@@ -48,15 +48,15 @@ android {
   }
 }
 
-afterEvaluate {
-  publishing {
-    publications {
-      register<MavenPublication>("release") {
-        from(components["release"])
+publishing {
+  publications {
+    register<MavenPublication>("release") {
+      groupId = "com.github.corrily"
+      artifactId = "corrily-android-sdk"
+      version = version
 
-        groupId = "com.github.corrily"
-        artifactId = "corrily-android-sdk"
-        version = version
+      afterEvaluate {
+        from(components["release"])
       }
     }
   }
